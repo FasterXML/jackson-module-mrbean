@@ -59,6 +59,11 @@ dynamically ("bean materialization"): refactored out of main Jackson project
       <artifactId>jackson-mapper-asl</artifactId>
       <version>1.9.2</version>
     </dependency>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+      <version>3.3.1</version>
+    </dependency>
      <!-- and for testing, JUnit (or TestNG?) is needed -->
     <dependency>
       <groupId>junit</groupId>
@@ -70,6 +75,33 @@ dynamically ("bean materialization"): refactored out of main Jackson project
 
   <build>
     <plugins>
+      <plugin>
+        <!--  We will shade ASM, to simplify deployment, avoid version conflicts -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>asm:asm</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>org.objectweb.asm</pattern>
+                  <shadedPattern>com.fasterxml.jackson.module.mrbean.asm</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
@@ -139,6 +171,7 @@ org.codehaus.jackson
 ,org.codehaus.jackson.map.type
 ,org.codehaus.jackson.type
 ,org.codehaus.jackson.util
+,org.objectweb.asm
 </Import-Package>
               <Private-Package>
 </Private-Package>
