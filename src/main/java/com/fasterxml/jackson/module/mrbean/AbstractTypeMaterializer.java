@@ -1,4 +1,4 @@
-package org.codehaus.jackson.mrbean;
+package com.fasterxml.jackson.module.mrbean;
 
 import java.lang.reflect.Modifier;
 

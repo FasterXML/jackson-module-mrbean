@@ -1,8 +1,9 @@
-package org.codehaus.jackson.mrbean;
+package com.fasterxml.jackson.module.mrbean;
 
 import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.Module;
-import org.codehaus.jackson.mrbean.AbstractTypeMaterializer;
+
+import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer;
 
 public class MrBeanModule extends Module
 {
