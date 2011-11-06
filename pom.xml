@@ -176,7 +176,7 @@ org.codehaus.jackson
               <Private-Package>
 </Private-Package>
               <Export-Package>
-org.codehaus.jackson.mrbean
+com.fasterxml.jackson.module.mrbean
 </Export-Package>
             </instructions>
           </configuration>
