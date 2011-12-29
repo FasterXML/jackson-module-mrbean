@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import org.codehaus.jackson.*;
+import com.fasterxml.jackson.core.*;
 
 //import static org.junit.Assert.*;
 

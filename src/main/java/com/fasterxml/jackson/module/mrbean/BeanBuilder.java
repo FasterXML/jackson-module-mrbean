@@ -7,9 +7,9 @@ import org.objectweb.asm.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
-import org.codehaus.jackson.type.JavaType;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.type.TypeFactory;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Heavy lifter of mr Bean package: class that keeps track of logical POJO properties,

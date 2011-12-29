@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.module.mrbean;
 
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.Module;
+import com.fasterxml.jackson.core.Version;
+
+import com.fasterxml.jackson.databind.Module;
 
 import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer;
 
@@ -10,7 +11,7 @@ public class MrBeanModule extends Module
     private final String NAME = "MrBeanModule";
 
     // TODO: externalize
-    private final static Version VERSION = new Version(1, 8, 0, null);
+    private final static Version VERSION = new Version(2, 0, 0, null);
 
     /**
      * Configured materializer instance to register with deserializer factory.

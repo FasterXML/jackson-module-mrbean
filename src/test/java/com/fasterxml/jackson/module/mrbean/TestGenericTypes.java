@@ -2,7 +2,7 @@ package com.fasterxml.jackson.module.mrbean;
 
 import java.util.*;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestGenericTypes
     extends BaseTest

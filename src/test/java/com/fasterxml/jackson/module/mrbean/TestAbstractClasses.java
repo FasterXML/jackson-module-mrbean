@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.module.mrbean;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestAbstractClasses
     extends BaseTest

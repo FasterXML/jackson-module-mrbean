@@ -2,9 +2,7 @@ package com.fasterxml.jackson.module.mrbean;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
 import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer;
 

@@ -2,12 +2,12 @@ package com.fasterxml.jackson.module.mrbean;
 
 import java.lang.reflect.Modifier;
 
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.Versioned;
-import org.codehaus.jackson.map.AbstractTypeResolver;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.type.JavaType;
-import org.codehaus.jackson.util.VersionUtil;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.Versioned;
+import com.fasterxml.jackson.databind.AbstractTypeResolver;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * Nifty class for pulling implementations of classes out of thin air.
@@ -16,8 +16,6 @@ import org.codehaus.jackson.util.VersionUtil;
  * 
  * @author tatu
  * @author sunny
- * 
- * @since 1.6
  */
 public class AbstractTypeMaterializer
     extends AbstractTypeResolver
@@ -41,8 +39,6 @@ public class AbstractTypeMaterializer
          * generate implementation of non-public class or interface.
          * If true, an exception is thrown; if false, will just quietly
          * ignore attempts.
-         * 
-         * @since 1.9
          */
         FAIL_ON_NON_PUBLIC_TYPES(true)
         ;
@@ -114,8 +110,6 @@ public class AbstractTypeMaterializer
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
-     * 
-     * @since 1.6
      */
     public Version version() {
         return VersionUtil.versionFor(getClass());
