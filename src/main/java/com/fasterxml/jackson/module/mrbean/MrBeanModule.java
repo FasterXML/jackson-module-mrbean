@@ -8,10 +8,7 @@ import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer;
 
 public class MrBeanModule extends Module
 {
-    private final String NAME = "MrBeanModule";
-
-    // TODO: externalize
-    private final static Version VERSION = new Version(2, 0, 0, null);
+    private final static Version _version = ModuleVersion.instance.version();
 
     /**
      * Configured materializer instance to register with deserializer factory.
@@ -32,8 +29,12 @@ public class MrBeanModule extends Module
         _materializer = materializer;
     }
 
-    @Override public String getModuleName() { return NAME; }
-    @Override public Version version() { return VERSION; }
+    @Override public String getModuleName() { return _version.getArtifactId(); }
+
+    //@Override
+    public Version version() {
+        return _version;
+    }
     
     @Override
     public void setupModule(SetupContext context)

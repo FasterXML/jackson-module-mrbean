@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * Nifty class for pulling implementations of classes out of thin air.
@@ -111,8 +110,9 @@ public class AbstractTypeMaterializer
      * Method that will return version information stored in and read from jar
      * that contains this class.
      */
+    //@Override
     public Version version() {
-        return VersionUtil.versionFor(getClass());
+        return ModuleVersion.instance.version();
     }
     
     /**
