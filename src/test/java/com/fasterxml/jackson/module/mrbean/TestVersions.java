@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 
 /**
- * Tests to verify [JACKSON-278]
+ * Tests to verify proper version access.
  */
 public class TestVersions extends BaseTest
 {
