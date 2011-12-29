@@ -79,6 +79,13 @@ dynamically ("bean materialization"): refactored out of main Jackson project
   </dependencies>
 
   <build>
+    <!--  need to enable filtering to add version info -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>  
+    </resources>
     <plugins>
       <plugin>
         <!--  We will shade ASM, to simplify deployment, avoid version conflicts -->
