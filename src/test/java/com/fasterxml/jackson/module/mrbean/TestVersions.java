@@ -15,7 +15,7 @@ public class TestVersions extends BaseTest
     private final static int MINOR_VERSION = 0;
 
     // could inject using Maven filters as well...
-    private final static String GROUP_ID = "com.fasterxml.jackson";
+    private final static String GROUP_ID = "com.fasterxml.jackson.module";
     private final static String ARTIFACT_ID = "jackson-module-mrbean";
     
     public void testMapperVersions()
