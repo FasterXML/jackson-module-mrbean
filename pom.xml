@@ -8,7 +8,7 @@
   <groupId>com.fasterxml.jackson.module</groupId>
   <artifactId>jackson-module-mrbean</artifactId>
   <name>Jackson-module-mr.Bean</name>
-  <version>2.0.0-RC2-SNAPSHOT</version>
+  <version>2.0.0-RC2</version>
   <packaging>bundle</packaging>
   <description>Functionality for implementing interfaces and abstract types
 dynamically ("bean materialization"): refactored out of main Jackson project
