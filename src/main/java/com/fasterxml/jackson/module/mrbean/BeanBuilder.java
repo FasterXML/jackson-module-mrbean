@@ -176,7 +176,7 @@ public class BeanBuilder
     {
         Property prop = _beanProperties.get(propName);
         if (prop == null) {
-            prop = new Property(propName);
+            prop = new Property(propName, _implementedType);
             _beanProperties.put(propName, prop);
         }
         return prop;
@@ -299,13 +299,20 @@ public class BeanBuilder
     {
         protected final String _name;
         protected final String _fieldName;
+
+        /**
+         * Class in which setter/getter was declared, needed for resolving
+         * generic types.
+         */
+        protected final Class<?> _context;
         
         protected Method _getter;
         protected Method _setter;
         
-        public Property(String name)
+        public Property(String name, Class<?> ctxt)
         {
             _name = name;
+            _context = ctxt;
             // Let's just prefix field name with single underscore for fun...
             _fieldName = "_"+name;
         }
@@ -339,14 +346,12 @@ public class BeanBuilder
 
         private TypeDescription getterType(TypeFactory tf)
         {
-            Class<?> context = _getter.getDeclaringClass();
-            return new TypeDescription(tf.constructType(_getter.getGenericReturnType(), context));
+            return new TypeDescription(tf.constructType(_getter.getGenericReturnType(), _context));
         }
 
         private TypeDescription setterType(TypeFactory tf)
         {
-            Class<?> context = _setter.getDeclaringClass();
-            return new TypeDescription(tf.constructType(_setter.getGenericParameterTypes()[0], context));
+            return new TypeDescription(tf.constructType(_setter.getGenericParameterTypes()[0], _context));
         }
         
         public TypeDescription selectType(TypeFactory tf)
