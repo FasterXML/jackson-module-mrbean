@@ -98,6 +98,11 @@ public class AbstractTypeMaterializer
         this(null);
     }
 
+    
+    /**
+     * @param parentClassLoader Class loader to use for generated classes; if
+     *   null, will use class loader that loaded materializer itself.
+     */
     public AbstractTypeMaterializer(ClassLoader parentClassLoader)
     {
         if (parentClassLoader == null) {
@@ -148,6 +153,9 @@ public class AbstractTypeMaterializer
         }
     }
 
+    /**
+     * Method for specifying package to use for generated classes.
+     */
     public void setDefaultPackage(String defPkg)
     {
         if (!defPkg.endsWith(".")) {
@@ -192,17 +200,18 @@ public class AbstractTypeMaterializer
         return config.constructType(materializeClass(config, cls));
     }
 
-    /*
-    /**********************************************************
-    /* Internal methods
-    /**********************************************************
+    /**
+     * Method that will find implementation for given abstract class; if called
+     * multiple times on same materializer, will return same Class.
+     * 
+     * @param config Configuration settings to use; mostly needed to be able to
+     *     access {@link com.fasterxml.jackson.databind.type.TypeFactory}
      */
-
-    protected Class<?> materializeClass(DeserializationConfig config, Class<?> cls)
+    public Class<?> materializeClass(DeserializationConfig config, Class<?> cls)
     {
         // Need to have proper name mangling in future, but for now...
         String newName = _defaultPackage+cls.getName();
-        BeanBuilder builder = new BeanBuilder(config, cls);
+        BeanBuilder builder = new BeanBuilder(cls, config.getTypeFactory());
         byte[] bytecode = builder.implement(isEnabled(Feature.FAIL_ON_UNMATERIALIZED_METHOD)).build(newName);
         Class<?> result = _classLoader.loadAndResolve(newName, bytecode, cls);
         return result;

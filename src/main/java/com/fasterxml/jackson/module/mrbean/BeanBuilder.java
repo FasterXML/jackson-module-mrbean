@@ -7,15 +7,12 @@ import org.objectweb.asm.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Heavy lifter of mr Bean package: class that keeps track of logical POJO properties,
  * and figures out how to create an implementation class.
- * 
- * @since 1.6
  */
 public class BeanBuilder
 {
@@ -29,10 +26,10 @@ public class BeanBuilder
 
     protected final TypeFactory _typeFactory;
     
-    public BeanBuilder(DeserializationConfig config, Class<?> implType)
+    public BeanBuilder(Class<?> implType, TypeFactory tf)
     {
         _implementedType = implType;
-        _typeFactory = config.getTypeFactory();
+        _typeFactory = tf;
     }
 
     /*
