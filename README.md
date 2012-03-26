@@ -1,10 +1,13 @@
-Module that will add dynamic bytecode generation for standard Jackson POJO serializers and deserializers, eliminating majority of remaining data binding overhead.
+Mr Bean is an extension that implements support for "POJO type materialization";
+ability for [databinder](jackson-databind) to construct implementation classes for Java interfaces and abstract classes, as part of deserialization.
 
-Plugs in using standard Module interface; requires Jackson 2.0.0 or above.
+Extension plugs in using standard `Module` interface, and requires Jackson 2.0.0 or above.
 
 ## Status
 
-At this point module should be considered experimental, but it does work for use cases I have tried so far; including jvm-serializers [https://github.com/eishay/jvm-serializers] benchmark (where it helps Jackson data-bind get within 10-15% of "jackson/manual" performance; and 15-20% for Smile).
+Module is fully usable, and considered stable having been added to Jackson in version [1.6](http://wiki.fasterxml.com/JacksonRelease16).
+
+Project was carved out as a stand-alone project with Jackson 2.0; previously it was included in set of core jars built along with databinding functionality, but has always been a separate artifact from databinding functionality.
 
 ## Usage
 
@@ -14,15 +17,47 @@ To use module on Maven-based projects, use following dependency:
 
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-afterburner</artifactId>
-      <version>2.0.0-SNAPSHOT</version>
+      <artifactId>jackson-module-mrbean</artifactId>
+      <version>2.0.0</version>
     </dependency>    
 
 (or whatever version is most up-to-date at the moment)
+
+## Usage
 
 ### Registering module
 
 To use the the Module in Jackson, simply register it with the ObjectMapper instance:
 
     Object mapper = new ObjectMapper()
-    mapper.registerModule(new AfterburnerModule());
+    // com.fasterxml.jackson.module.mrbean.MrBeanModule:
+    mapper.registerModule(new MrBeanModule());
+
+### Simple usage
+
+Once module is registered, all you need is an interface like:
+
+    public interface Point {
+      // may have setters and/or getters
+      public int getX();
+      public void setX(int value);
+      // but setters are optional if getter exists:
+      public int getY();
+    }
+
+and then you can read JSON into an implementation class of given interface or abstract class:
+
+    String json = "{\"x\":12,\"y\":35}";
+    Point p = objectMapper.readValue(json, Point.class);
+
+(to contrast, try running this example without module registration -- this would result in an exception being thrown)
+
+Note: this works transitively as well, meaning that implementation classes will be materialized for any interface and abstract types.
+
+### Caveat: incompatibility with polymorphic types
+
+One potential area of conflict is that of handling of so-called polymorphic types (POJOs annotated with `@JsonTypeInfo` annotation).
+Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used).
+Because of this, Mr Bean will ''not materialize any types annotated with @JsonTypeInfo annotation''.
+
+
