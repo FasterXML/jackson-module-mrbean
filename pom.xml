@@ -64,9 +64,9 @@ dynamically ("bean materialization"): refactored out of main Jackson project
       <version>2.0.0</version>
     </dependency>
     <dependency>
-      <groupId>asm</groupId>
+      <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>3.3.1</version>
+      <version>4.0</version>
       <scope>compile</scope>
     </dependency>
      <!-- and for testing, JUnit (or TestNG?) is needed -->
@@ -101,7 +101,7 @@ dynamically ("bean materialization"): refactored out of main Jackson project
             <configuration>
               <artifactSet>
                 <includes>
-                  <include>asm:asm</include>
+                  <include>org.ow2.asm:asm</include>
                 </includes>
               </artifactSet>
               <relocations>
