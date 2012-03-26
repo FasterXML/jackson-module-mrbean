@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 public class BeanBuilder
 {
-    protected Map<String, Property> _beanProperties = new LinkedHashMap<String,Property>();
+    protected Map<String, POJOProperty> _beanProperties = new LinkedHashMap<String,POJOProperty>();
     protected LinkedHashMap<String,Method> _unsupportedMethods = new LinkedHashMap<String,Method>();
 
     /**
@@ -109,7 +109,7 @@ public class BeanBuilder
         }
         cw.visitSource(className + ".java", null);
         BeanBuilder.generateDefaultConstructor(cw, superName);
-        for (Property prop : _beanProperties.values()) {
+        for (POJOProperty prop : _beanProperties.values()) {
             // First: determine type to use; preferably setter (usually more explicit); otherwise getter
             TypeDescription type = prop.selectType(_typeFactory);
             createField(cw, prop, type);
@@ -144,11 +144,19 @@ public class BeanBuilder
     }
     
     private static String buildGetterName(String fieldName) {
-        return "get" + fieldName.substring(0, 1).toUpperCase()+ fieldName.substring(1);
+        StringBuilder sb = new StringBuilder(fieldName.length());
+        return sb.append("get")
+                .append(Character.toUpperCase(fieldName.charAt(0)))
+                .append(fieldName.substring(1))
+                .toString();
     }
 
     private static String buildSetterName(String fieldName) {
-        return "set" + fieldName.substring(0, 1).toUpperCase()+ fieldName.substring(1);
+        StringBuilder sb = new StringBuilder(fieldName.length());
+        return sb.append("set")
+                .append(Character.toUpperCase(fieldName.charAt(0)))
+                .append(fieldName.substring(1))
+                .toString();
     }
 
     private static String getInternalClassName(String className) {
@@ -157,7 +165,7 @@ public class BeanBuilder
 
     private void addGetter(Method m)
     {
-        Property prop = findProperty(getPropertyName(m.getName()));
+        POJOProperty prop = findProperty(getPropertyName(m.getName()));
         // only set if not yet set; we start with super class:
         if (prop.getGetter() == null) {
             prop.setGetter(m);        
@@ -166,17 +174,17 @@ public class BeanBuilder
 
     private void addSetter(Method m)
     {
-        Property prop = findProperty(getPropertyName(m.getName()));
+        POJOProperty prop = findProperty(getPropertyName(m.getName()));
         if (prop.getSetter() == null) {
             prop.setSetter(m);
         }
     }
 
-    private Property findProperty(String propName)
+    private POJOProperty findProperty(String propName)
     {
-        Property prop = _beanProperties.get(propName);
+        POJOProperty prop = _beanProperties.get(propName);
         if (prop == null) {
-            prop = new Property(propName, _implementedType);
+            prop = new POJOProperty(propName, _implementedType);
             _beanProperties.put(propName, prop);
         }
         return prop;
@@ -205,7 +213,7 @@ public class BeanBuilder
         mv.visitEnd();
     }
 
-    private static void createField(ClassWriter cw, Property prop, TypeDescription type)
+    private static void createField(ClassWriter cw, POJOProperty prop, TypeDescription type)
     {
         String sig = type.hasGenerics() ? type.genericSignature() : null;
         String desc = type.erasedSignature();
@@ -214,7 +222,7 @@ public class BeanBuilder
     }
 
     private static void createSetter(ClassWriter cw, String internalClassName,
-            Property prop, TypeDescription propertyType)
+            POJOProperty prop, TypeDescription propertyType)
     {
         String methodName;
         String desc;
@@ -239,7 +247,7 @@ public class BeanBuilder
     }
 
     private static void createGetter(ClassWriter cw, String internalClassName,
-            Property prop, TypeDescription propertyType)
+            POJOProperty prop, TypeDescription propertyType)
     {
         String methodName;
         String desc;
@@ -290,99 +298,9 @@ public class BeanBuilder
      */
 
     /**
-     * Bean that contains information about a single logical
-     * property, which consists of a getter and/or setter,
-     * and is used to generate getter, setter and matching
-     * backing field.
-     */
-    private static class Property
-    {
-        protected final String _name;
-        protected final String _fieldName;
-
-        /**
-         * Class in which setter/getter was declared, needed for resolving
-         * generic types.
-         */
-        protected final Class<?> _context;
-        
-        protected Method _getter;
-        protected Method _setter;
-        
-        public Property(String name, Class<?> ctxt)
-        {
-            _name = name;
-            _context = ctxt;
-            // Let's just prefix field name with single underscore for fun...
-            _fieldName = "_"+name;
-        }
-
-        public String getName() { return _name; }
-        
-        public void setGetter(Method m) { _getter = m; }
-        public void setSetter(Method m) { _setter = m; }
-        
-        public Method getGetter() { return _getter; }
-        public Method getSetter() { return _setter; }
-
-        public String getFieldName() {
-            return _fieldName;
-        }
-
-        /*
-        private static boolean isConcrete(Method m)
-        {
-            return m.getModifiers()
-        }
-        */
-        
-        public boolean hasConcreteGetter() {
-            return (_getter != null) && BeanUtil.isConcrete(_getter);
-        }
-
-        public boolean hasConcreteSetter() {
-            return (_setter != null) && BeanUtil.isConcrete(_setter);
-        }
-
-        private TypeDescription getterType(TypeFactory tf)
-        {
-            return new TypeDescription(tf.constructType(_getter.getGenericReturnType(), _context));
-        }
-
-        private TypeDescription setterType(TypeFactory tf)
-        {
-            return new TypeDescription(tf.constructType(_setter.getGenericParameterTypes()[0], _context));
-        }
-        
-        public TypeDescription selectType(TypeFactory tf)
-        {
-            // First: if only know setter, or getter, use that one:
-            if (_getter == null) {
-                return setterType(tf);
-            }
-            if (_setter == null) {
-                return getterType(tf);
-            }
-            /* Otherwise must ensure they are compatible, choose more specific
-             * (most often setter - type)
-             */
-            TypeDescription st = setterType(tf);
-            TypeDescription gt = getterType(tf);
-            TypeDescription specificType = TypeDescription.moreSpecificType(st, gt);
-            if (specificType == null) { // incompatible...
-                throw new IllegalArgumentException("Invalid property '"+getName()
-                        +"': incompatible types for getter/setter ("
-                        +gt+" vs "+st+")");
-
-            }
-            return specificType;
-        }
-    }
-    
-    /**
      * Helper bean used to encapsulate most details of type handling
      */
-    private static class TypeDescription
+    static class TypeDescription
     {
         private final Type _asmType;
         private JavaType _jacksonType;
