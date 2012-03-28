@@ -45,7 +45,15 @@ public class MrBeanModule extends Module
 
     /*
     /**********************************************************
-    /* Extended API, configuration
+    /* Extended API
     /**********************************************************
      */
+
+    /**
+     * Accessor for getting internal {@link AbstractTypeMaterializer}; usually
+     * needed to call {@link AbstractTypeMaterializer#materializeClass}.
+     */
+    public AbstractTypeMaterializer getMaterializer() {
+        return _materializer;
+    }
 }
