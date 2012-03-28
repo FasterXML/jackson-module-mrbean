@@ -1,15 +1,15 @@
 Version: 2.0.0
 
 Release date:
-  25-Mar-2012
+  27-Mar-2012
 
 Description:
   The official 2.0 release of Jackson.
   No new features; upgraded to work with core 2.0.0.
 
-Fixes:
+New features:
 
-  (all fixes up until 1.9.6)
+* Issue-2: Make 'AbstractTypeMaterializer.materializeClass()' public
 
 ------------------------------------------------------------------------
 === History: ===
