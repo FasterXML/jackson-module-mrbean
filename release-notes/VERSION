@@ -1,18 +1,22 @@
-Version: 2.0.2
+Version: 2.0.3
 
 Release date:
-  14-May-2012
+  xx-May-2012
 
 Description:
   A patch release for 2.0.
 
 Fixes:
 
-* Issue-2: Make 'AbstractTypeMaterializer.materializeClass()' public
-
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.0.2 (14-May-2012)
+
+Fixes:
+
+* Issue-2: Make 'AbstractTypeMaterializer.materializeClass()' public
 
 2.0.0 (27-Mar-2012)
 
