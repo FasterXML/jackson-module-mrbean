@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.module.mrbean;
 
-import java.lang.reflect.Modifier;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+
+import java.lang.reflect.Modifier;
 
 /**
  * Nifty class for pulling implementations of classes out of thin air.
@@ -197,7 +197,7 @@ public class AbstractTypeMaterializer
         
         // might want to skip proxies, local types too... but let them be for now:
         //if (intr.findTypeResolver(beanDesc.getClassInfo(), type) == null) {
-        return config.constructType(materializeClass(config, cls));
+        return config.constructType(materializeClass(config, type));
     }
 
     /**
@@ -207,16 +207,27 @@ public class AbstractTypeMaterializer
      * @param config Configuration settings to use; mostly needed to be able to
      *     access {@link com.fasterxml.jackson.databind.type.TypeFactory}
      */
-    public Class<?> materializeClass(DeserializationConfig config, Class<?> cls)
+    public Class<?> materializeClass(DeserializationConfig config, JavaType type)
     {
         // Need to have proper name mangling in future, but for now...
+
+        //this is an open generic type
+        if (type.containedTypeCount() > 0) {
+            Class<?> cls = type.getRawClass();
+            String abstractName = _defaultPackage+"abstract." +cls.getName()+"_TYPE_RESOLVE";
+            TypeBuilder tb = new TypeBuilder(type);
+            byte[] code = tb.buildAbstractBase(abstractName);
+            Class<?> result = _classLoader.loadAndResolve(abstractName, code, cls);
+            type = config.getTypeFactory().constructType(result);
+        }
+
+        Class<?> cls = type.getRawClass();
         String newName = _defaultPackage+cls.getName();
         BeanBuilder builder = new BeanBuilder(cls, config.getTypeFactory());
         byte[] bytecode = builder.implement(isEnabled(Feature.FAIL_ON_UNMATERIALIZED_METHOD)).build(newName);
-        Class<?> result = _classLoader.loadAndResolve(newName, bytecode, cls);
-        return result;
+        return _classLoader.loadAndResolve(newName, bytecode, cls);
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes

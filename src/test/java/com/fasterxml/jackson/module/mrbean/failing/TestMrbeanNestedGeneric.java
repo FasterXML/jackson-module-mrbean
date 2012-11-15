@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.module.mrbean.failing;
 
-import java.util.List;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.mrbean.BaseTest;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
+
+import java.util.List;
 
 /**
  * Tests to verify whether generic declarations are properly handled by Mr Bean.
@@ -45,7 +44,7 @@ public class TestMrbeanNestedGeneric extends BaseTest
         final ResultWrapper<Dog> result = mapper.readValue(JSON, 
                 new TypeReference<ResultWrapper<Dog>>() { });
         Object ob = result.getValue();
-        assertEquals(Dog.class, ob.getClass());
+        assertTrue(Dog.class.isAssignableFrom(ob.getClass()));
     }
 
     // For [JACKSON-479]
@@ -61,7 +60,7 @@ public class TestMrbeanNestedGeneric extends BaseTest
 
         List<?> records = result.getRecords();
         assertEquals(1, records.size());
-        assertEquals(Dog.class, records.get(0).getClass());
+        assertTrue(Dog.class.isAssignableFrom(records.get(0).getClass()));
     }
 
 }
