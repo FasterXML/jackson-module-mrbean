@@ -1,6 +1,7 @@
-Version: 2.1.2 (xx-Dec-2012)
-Description:
-  A patch release for 2.1.
+Project: jackson-module-mrbean
+Version: 2.1.2 (04-Dec-2012)
+
+A patch release for 2.1.
 
 Fixes:
 

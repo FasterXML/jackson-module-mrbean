@@ -29,7 +29,7 @@
 
   <name>Jackson-module-mr.Bean</name>
   <description>Functionality for implementing interfaces and abstract types
-dynamically ("bean materialization"): refactored out of main Jackson project
+dynamically ("bean materialization"), integrated with Jackson (although usable externally as well)
   </description>
   <url>http://wiki.fasterxml.com/JacksonHome</url>
 
@@ -44,6 +44,7 @@ dynamically ("bean materialization"): refactored out of main Jackson project
   </scm>
 
   <properties>
+    <jackson.core.version>2.1.2</jackson.core.version>
     <osgi.export>
 com.fasterxml.jackson.module.mrbean
     </osgi.export>
@@ -63,12 +64,12 @@ com.fasterxml.jackson.core
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.1.1</version>
+      <version>${jackson.core.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.1.1</version>
+      <version>${jackson.core.version}</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
