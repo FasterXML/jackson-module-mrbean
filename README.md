@@ -15,11 +15,13 @@ Project was carved out as a stand-alone project with Jackson 2.0; previously it 
 
 To use module on Maven-based projects, use following dependency:
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-mrbean</artifactId>
-      <version>2.1.1</version>
-    </dependency>    
+```xml
+<dependency>
+  <groupId>com.fasterxml.jackson.module</groupId>
+  <artifactId>jackson-module-mrbean</artifactId>
+  <version>2.1.1</version>
+</dependency>
+```
 
 (or whatever version is most up-to-date at the moment)
 
@@ -29,26 +31,32 @@ To use module on Maven-based projects, use following dependency:
 
 To use the the Module in Jackson, simply register it with the ObjectMapper instance:
 
-    Object mapper = new ObjectMapper()
-    // com.fasterxml.jackson.module.mrbean.MrBeanModule:
-    mapper.registerModule(new MrBeanModule());
+```java
+Object mapper = new ObjectMapper()
+// com.fasterxml.jackson.module.mrbean.MrBeanModule:
+mapper.registerModule(new MrBeanModule());
+```
 
 ### Simple usage
 
 Once module is registered, all you need is an interface like:
 
-    public interface Point {
-      // may have setters and/or getters
-      public int getX();
-      public void setX(int value);
-      // but setters are optional if getter exists:
-      public int getY();
-    }
+```java
+public interface Point {
+  // may have setters and/or getters
+  public int getX();
+  public void setX(int value);
+  // but setters are optional if getter exists:
+  public int getY();
+}
+```
 
 and then you can read JSON into an implementation class of given interface or abstract class:
 
-    String json = "{\"x\":12,\"y\":35}";
-    Point p = objectMapper.readValue(json, Point.class);
+```java
+String json = "{\"x\":12,\"y\":35}";
+Point p = objectMapper.readValue(json, Point.class);
+```
 
 (to contrast, try running this example without module registration -- this would result in an exception being thrown)
 
