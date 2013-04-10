@@ -31,7 +31,7 @@ public class MrBeanModule extends Module
 
     @Override public String getModuleName() { return _version.getArtifactId(); }
 
-    //@Override
+    @Override
     public Version version() {
         return _version;
     }
