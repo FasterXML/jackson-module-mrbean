@@ -24,7 +24,7 @@ public class MrBeanModule extends SimpleModule
     }
 
     public MrBeanModule(AbstractTypeMaterializer materializer) {
-        super("MrBean", PackageVersion.VERSION);
+        super(PackageVersion.VERSION);
         _materializer = materializer;
     }
     
