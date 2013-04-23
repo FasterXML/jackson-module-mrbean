@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>9</version>
+    <version>10</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.module</groupId>
@@ -34,7 +34,7 @@ dynamically ("bean materialization"), integrated with Jackson (although usable e
   <url>http://wiki.fasterxml.com/JacksonHome</url>
 
   <issueManagement>
-    <url>http://jira.codehaus.org/browse/JACKSON</url>
+    <url>https://github.com/FasterXML/jackson-module-mrbean/issues</url>
   </issueManagement>
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-module-mrbean.git</connection>
@@ -44,7 +44,7 @@ dynamically ("bean materialization"), integrated with Jackson (although usable e
   </scm>
 
   <properties>
-    <jackson.core.version>2.2.0-SNAPSHOT</jackson.core.version>
+    <jackson.core.version>2.2.0</jackson.core.version>
    <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/module/mrbean</packageVersion.dir>
     <packageVersion.package>${project.groupId}.mrbean</packageVersion.package>
