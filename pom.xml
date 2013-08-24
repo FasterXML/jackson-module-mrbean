@@ -10,7 +10,7 @@
 
   <groupId>com.fasterxml.jackson.module</groupId>
   <artifactId>jackson-module-mrbean</artifactId>
-  <version>2.2.3</version>
+  <version>2.2.4-SNAPSHOT</version>
 
   <name>Jackson-module-mr.Bean</name>
   <description>Functionality for implementing interfaces and abstract types
@@ -25,7 +25,7 @@ dynamically ("bean materialization"), integrated with Jackson (although usable e
     <connection>scm:git:git@github.com:FasterXML/jackson-module-mrbean.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-module-mrbean.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-module-mrbean</url>    
-    <tag>jackson-module-mrbean-2.2.3</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
