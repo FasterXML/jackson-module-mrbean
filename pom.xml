@@ -11,8 +11,8 @@
   <groupId>com.fasterxml.jackson.module</groupId>
   <artifactId>jackson-module-mrbean</artifactId>
   <version>2.3.0-SNAPSHOT</version>
-
   <name>Jackson-module-mr.Bean</name>
+  <packaging>bundle</packaging>
   <description>Functionality for implementing interfaces and abstract types
 dynamically ("bean materialization"), integrated with Jackson (although usable externally as well)
   </description>
@@ -41,9 +41,10 @@ com.fasterxml.jackson.core
 ,com.fasterxml.jackson.core.type
 ,com.fasterxml.jackson.core.util
 ,com.fasterxml.jackson.databind
+,com.fasterxml.jackson.databind.module,
 ,com.fasterxml.jackson.databind.type
-,org.objectweb.asm;resolution:=optional
 </osgi.import>
+    <osgi.private>org.objectweb.asm.*</osgi.private>
   </properties>
 
   <dependencies>
@@ -101,7 +102,7 @@ com.fasterxml.jackson.core
             <configuration>
               <artifactSet>
                 <includes>
-                  <include>org.ow2.asm:asm</include>
+                  <include>org.objectweb.asm:asm</include>
                 </includes>
               </artifactSet>
               <relocations>
