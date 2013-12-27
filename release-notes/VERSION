@@ -1,11 +1,15 @@
 Project: jackson-module-mrbean
-Version: 2.3.0 (14-Nov-2013)
+Version: 2.3.0 (xx-Dec-2013)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
 
-2.3.3 (23-Aug-2013)
+2.3.0 (14-Nov-2013)
+
+No functional changes.
+
+2.2.3 (23-Aug-2013)
 
 #8: Add LICENSE, NOTICE files in artifacts
 
