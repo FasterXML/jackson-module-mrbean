@@ -29,7 +29,7 @@ dynamically ("bean materialization"), integrated with Jackson (although usable e
   </scm>
 
   <properties>
-    <jackson.core.version>2.3.1</jackson.core.version>
+    <version.jackson.core>2.3.2</version.jackson.core>
    <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/module/mrbean</packageVersion.dir>
     <packageVersion.package>${project.groupId}.mrbean</packageVersion.package>
@@ -53,12 +53,12 @@ com.fasterxml.jackson.core
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson.core.version}</version>
+      <version>${version.jackson.core}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson.core.version}</version>
+      <version>${version.jackson.core}</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
