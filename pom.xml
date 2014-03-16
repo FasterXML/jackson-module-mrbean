@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion> 
 
   <parent>
-    <groupId>com.fasterxml</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>12</version>
+    <groupId>com.fasterxml.jackson</groupId>
+    <artifactId>jackson-parent</artifactId>
+    <version>2.4</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.module</groupId>
@@ -17,7 +17,6 @@
 dynamically ("bean materialization"), integrated with Jackson (although usable externally as well)
   </description>
   <url>http://wiki.fasterxml.com/JacksonHome</url>
-
   <issueManagement>
     <url>https://github.com/FasterXML/jackson-module-mrbean/issues</url>
   </issueManagement>
@@ -29,7 +28,7 @@ dynamically ("bean materialization"), integrated with Jackson (although usable e
   </scm>
 
   <properties>
-    <version.jackson.core>2.3.2</version.jackson.core>
+    <version.jackson.core>${project.version}</version.jackson.core>
    <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/module/mrbean</packageVersion.dir>
     <packageVersion.package>${project.groupId}.mrbean</packageVersion.package>
@@ -63,15 +62,8 @@ com.fasterxml.jackson.core
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>4.0</version>
+      <version>4.2</version>
       <scope>compile</scope>
-    </dependency>
-     <!-- and for testing, JUnit (or TestNG?) is needed -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.10</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
