@@ -184,6 +184,10 @@ public class AbstractTypeMaterializer
             return null;
         }
         Class<?> cls = type.getRawClass();
+        // or, as per [#12], Number
+        if (cls == Number.class) {
+            return null;
+        }
         /* [JACKSON-683] Fail on non-public classes, since we can't easily force
          *   access to such classes (unless we tried to generate impl classes in that
          *   package)

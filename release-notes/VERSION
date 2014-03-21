@@ -1,12 +1,14 @@
 Project: jackson-module-mrbean
-Version: 2.3.2 (01-Mar-2014)
+Version: 2.3.3 (xx-xxx-2014)
 
-No functional changes.
+#12: Fix problem with `Number` as Map value (and probably other types too)
+ (contributed by Steven S)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
 
+2.3.2 (01-Mar-2014)
 2.3.1 (28-Dec-2013)
 2.3.0 (14-Nov-2013)
 
