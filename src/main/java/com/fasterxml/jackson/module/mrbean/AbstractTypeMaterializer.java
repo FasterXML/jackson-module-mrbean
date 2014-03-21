@@ -180,7 +180,9 @@ public class AbstractTypeMaterializer
         /* We won't be handling any container types (Collections, Maps and arrays),
          * Throwables or enums.
          */
-        if (type.isContainerType() || type.isPrimitive() || type.isEnumType() || type.isThrowable()) {
+        if (type.isContainerType() || type.isPrimitive() || type.isEnumType() || type.isThrowable() ||
+                type.getRawClass() == Number.class)
+        {
             return null;
         }
         Class<?> cls = type.getRawClass();
