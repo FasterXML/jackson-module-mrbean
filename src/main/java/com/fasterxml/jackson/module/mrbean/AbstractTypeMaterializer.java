@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 import java.lang.reflect.Modifier;
 
@@ -169,7 +170,11 @@ public class AbstractTypeMaterializer
     /* Public API
     /**********************************************************
      */
-    
+
+    /**
+     * Entry-point for {@link AbstractTypeResolver} that Jackson calls to materialize
+     * an abstract type.
+     */
     @Override
     public JavaType resolveAbstractType(DeserializationConfig config, JavaType type)
     {
@@ -199,7 +204,7 @@ public class AbstractTypeMaterializer
         
         // might want to skip proxies, local types too... but let them be for now:
         //if (intr.findTypeResolver(beanDesc.getClassInfo(), type) == null) {
-        return config.constructType(materializeClass(config, type));
+        return config.constructType(materializeType(config, type));
     }
 
     /**
@@ -208,28 +213,53 @@ public class AbstractTypeMaterializer
      * 
      * @param config Configuration settings to use; mostly needed to be able to
      *     access {@link com.fasterxml.jackson.databind.type.TypeFactory}
+     *     
+     * @since 2.4
      */
-    public Class<?> materializeClass(DeserializationConfig config, JavaType type)
+    public Class<?> materializeType(MapperConfig<?> config, JavaType type)
     {
-        // Need to have proper name mangling in future, but for now...
-
         //this is an open generic type
         if (type.containedTypeCount() > 0) {
-            Class<?> cls = type.getRawClass();
-            String abstractName = _defaultPackage+"abstract." +cls.getName()+"_TYPE_RESOLVE";
-            TypeBuilder tb = new TypeBuilder(type);
-            byte[] code = tb.buildAbstractBase(abstractName);
-            Class<?> result = _classLoader.loadAndResolve(abstractName, code, cls);
-            type = config.getTypeFactory().constructType(result);
+            return materializeGenericType(config, type);
         }
-
-        Class<?> cls = type.getRawClass();
-        String newName = _defaultPackage+cls.getName();
-        BeanBuilder builder = new BeanBuilder(cls, config.getTypeFactory());
-        byte[] bytecode = builder.implement(isEnabled(Feature.FAIL_ON_UNMATERIALIZED_METHOD)).build(newName);
-        return _classLoader.loadAndResolve(newName, bytecode, cls);
+        return materializeRawType(config, type.getRawClass());
     }
 
+    /**
+     * @since 2.4
+     */
+    public Class<?> materializeGenericType(MapperConfig<?> config, JavaType type)
+    {
+        Class<?> cls = type.getRawClass();
+        String abstractName = _defaultPackage+"abstract." +cls.getName()+"_TYPE_RESOLVE";
+        TypeBuilder tb = new TypeBuilder(type);
+        byte[] code = tb.buildAbstractBase(abstractName);
+        Class<?> raw = _classLoader.loadAndResolve(abstractName, code, cls);
+        return materializeRawType(config, raw);
+    }
+
+    /**
+     * NOTE: should not be called for generic types.
+     * 
+     * @since 2.4
+     */
+    public Class<?> materializeRawType(MapperConfig<?> config, Class<?> rawType)
+    {
+        String newName = _defaultPackage+rawType.getName();
+        BeanBuilder builder = new BeanBuilder(rawType, config.getTypeFactory());
+        byte[] bytecode = builder.implement(isEnabled(Feature.FAIL_ON_UNMATERIALIZED_METHOD)).build(newName);
+        return _classLoader.loadAndResolve(newName, bytecode, rawType);
+    }
+    
+    /**
+     * @deprecated Since 2.4 use {@link #materializeType(MapperConfig, JavaType)} instead
+     */
+    @Deprecated
+    public Class<?> materializeClass(DeserializationConfig config, JavaType type)
+    {
+        return materializeType(config, type);
+    }
+    
     /*
     /**********************************************************
     /* Helper classes

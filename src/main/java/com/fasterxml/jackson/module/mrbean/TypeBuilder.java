@@ -8,8 +8,7 @@ import org.objectweb.asm.signature.SignatureWriter;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
- * Ams build to generate abstract type
- * Created 06.11.12 20:55
+ * Asm build to generate abstract type
  *
  * @author Eugene Petrenko (eugene.petrenko@jetbrains.com)
  */
