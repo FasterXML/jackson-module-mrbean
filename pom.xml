@@ -40,6 +40,7 @@ com.fasterxml.jackson.core
 ,com.fasterxml.jackson.core.type
 ,com.fasterxml.jackson.core.util
 ,com.fasterxml.jackson.databind
+,com.fasterxml.jackson.databind.cfg
 ,com.fasterxml.jackson.databind.module,
 ,com.fasterxml.jackson.databind.type
 </osgi.import>
