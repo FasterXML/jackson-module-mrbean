@@ -1,5 +1,5 @@
 Project: jackson-module-mrbean
-Version: 2.3.3 (xx-xxx-2014)
+Version: 2.3.3 (10-Apr-2014)
 
 #12: Fix problem with `Number` as Map value (and probably other types too)
  (contributed by Steven S)
