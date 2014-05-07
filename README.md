@@ -32,7 +32,7 @@ To use module on Maven-based projects, use following dependency:
 To use the the Module in Jackson, simply register it with the ObjectMapper instance:
 
 ```java
-Object mapper = new ObjectMapper()
+ObjectMapper mapper = new ObjectMapper()
 // com.fasterxml.jackson.module.mrbean.MrBeanModule:
 mapper.registerModule(new MrBeanModule());
 ```
