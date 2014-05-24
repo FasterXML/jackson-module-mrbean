@@ -63,7 +63,7 @@ com.fasterxml.jackson.core
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>5.0.1</version>
+      <version>5.0.3</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
