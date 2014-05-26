@@ -71,8 +71,8 @@ public class BeanBuilder
                     continue;
                 }
                 // Otherwise, if concrete, or already handled, skip:
-                // !!! note: won't handle overloaded methods properly
-                if (BeanUtil.isConcrete(m) || _unsupportedMethods.containsKey(methodName)) {
+                // !!! note: handles simple overloaded methods, but not sure if it really works in general!!!!
+                if (BeanUtil.isConcrete(m) || _unsupportedMethods.containsKey(methodName) || hasConcreteOverride(m, _implementedType)) {
                     continue;
                 }
                 if (failOnUnrecognized) {
@@ -85,7 +85,20 @@ public class BeanBuilder
 
         return this;
     }
-    
+
+    // FIXME I know this is probably terrible, not sure if it works at all with generics etc
+    private boolean hasConcreteOverride(Method m, Class<?> implementedType) {
+        try {
+            final Method effectiveMethod = implementedType.getMethod( m.getName(), m.getParameterTypes() );
+            return BeanUtil.isConcrete(effectiveMethod);
+        }
+        catch( NoSuchMethodException e ) {
+            // FIXME this is even more terrible
+            throw new RuntimeException("Could not determine if method is overriden or not", e);
+        }
+
+    }
+
     /**
      * Method that generates byte code for class that implements abstract
      * types requested so far.
