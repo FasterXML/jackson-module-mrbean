@@ -65,7 +65,7 @@ public class TestSimpleMaterializedInterfaces
     {
         AbstractTypeMaterializer mat = new AbstractTypeMaterializer();
         DeserializationConfig config = new ObjectMapper().getDeserializationConfig();
-        Class<?> impl = mat.materializeClass(config, config.constructType(Bean.class));
+        Class<?> impl = mat.materializeRawType(config, Bean.class);
         assertNotNull(impl);
         assertTrue(Bean.class.isAssignableFrom(impl));
         // also, let's instantiate to make sure:
@@ -76,7 +76,7 @@ public class TestSimpleMaterializedInterfaces
         assertNull(bean.getA());
 
         // Also: let's verify that we can handle dup calls:
-        Class<?> impl2 = mat.materializeClass(config, config.constructType(Bean.class));
+        Class<?> impl2 = mat.materializeRawType(config, Bean.class);
         assertNotNull(impl2);
         assertSame(impl, impl2);
     }
@@ -86,7 +86,7 @@ public class TestSimpleMaterializedInterfaces
         AbstractTypeMaterializer mat = new AbstractTypeMaterializer();
         DeserializationConfig config = new ObjectMapper().getDeserializationConfig();
         try {
-            mat.materializeClass(config, config.constructType(InvalidBean.class));
+            mat.materializeRawType(config, InvalidBean.class);
             fail("Expected exception for incompatible property types");
         } catch (IllegalArgumentException e) {
             verifyException(e, "incompatible types");
@@ -100,7 +100,7 @@ public class TestSimpleMaterializedInterfaces
         mat.enable(AbstractTypeMaterializer.Feature.FAIL_ON_UNMATERIALIZED_METHOD);
         DeserializationConfig config = new ObjectMapper().getDeserializationConfig();
         try {
-            mat.materializeClass(config, config.constructType(PartialBean.class));
+            mat.materializeRawType(config, PartialBean.class);
             fail("Expected exception for unrecognized method");
         } catch (IllegalArgumentException e) {
             verifyException(e, "Unrecognized abstract method 'foobar'");

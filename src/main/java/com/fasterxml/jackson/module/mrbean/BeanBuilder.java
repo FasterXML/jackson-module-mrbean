@@ -211,7 +211,8 @@ public class BeanBuilder
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V");
+        // 26-May-2014, tatu: last 'false' since constructor never owned by interface
+        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0); // don't care (real values: 1,1)
         mv.visitEnd();
@@ -289,7 +290,8 @@ public class BeanBuilder
         mv.visitTypeInsn(NEW, exceptionName);
         mv.visitInsn(DUP);
         mv.visitLdcInsn("Unimplemented method '"+name+"' (not a setter/getter, could not materialize)");
-        mv.visitMethodInsn(INVOKESPECIAL, exceptionName, "<init>", "(Ljava/lang/String;)V");
+        // 26-May-2014, tatu: last 'false' since constructor never owned by interface
+        mv.visitMethodInsn(INVOKESPECIAL, exceptionName, "<init>", "(Ljava/lang/String;)V", false);
         mv.visitInsn(ATHROW);
         mv.visitMaxs(0, 0);  // don't care (real values: 3, 1 + method.getParameterTypes().length);
         mv.visitEnd();
