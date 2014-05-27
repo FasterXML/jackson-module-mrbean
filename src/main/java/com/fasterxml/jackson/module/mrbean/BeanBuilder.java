@@ -54,6 +54,7 @@ public class BeanBuilder
         // First: find all supertypes:
         implTypes.add(_implementedType);
         BeanUtil.findSuperTypes(_implementedType, Object.class, implTypes);
+        final boolean hasConcrete = !_implementedType.isInterface();
         
         for (Class<?> impl : implTypes) {
             // and then find all getters, setters, and other non-concrete methods therein:
@@ -71,8 +72,11 @@ public class BeanBuilder
                     continue;
                 }
                 // Otherwise, if concrete, or already handled, skip:
-                // !!! note: handles simple overloaded methods, but not sure if it really works in general!!!!
-                if (BeanUtil.isConcrete(m) || _unsupportedMethods.containsKey(methodName) || hasConcreteOverride(m, _implementedType)) {
+                if (BeanUtil.isConcrete(m) || _unsupportedMethods.containsKey(methodName)) {
+                    continue;
+                }
+                // [Issue#11]: try to support overloaded methods
+                if (hasConcrete && hasConcreteOverride(m, _implementedType)) {
                     continue;
                 }
                 if (failOnUnrecognized) {
@@ -84,19 +88,6 @@ public class BeanBuilder
         }
 
         return this;
-    }
-
-    // FIXME I know this is probably terrible, not sure if it works at all with generics etc
-    private boolean hasConcreteOverride(Method m, Class<?> implementedType) {
-        try {
-            final Method effectiveMethod = implementedType.getMethod( m.getName(), m.getParameterTypes() );
-            return BeanUtil.isConcrete(effectiveMethod);
-        }
-        catch( NoSuchMethodException e ) {
-            // FIXME this is even more terrible
-            throw new RuntimeException("Could not determine if method is overriden or not", e);
-        }
-
     }
 
     /**
@@ -151,36 +142,46 @@ public class BeanBuilder
     /**********************************************************
      */
 
-    private static String getPropertyName(String methodName)
+    /**
+     * Helper method used to detect if an abstract method found in a base class
+     * may actually be implemented in a (more) concrete sub-class.
+     * 
+     * @since 2.4
+     */
+    protected boolean hasConcreteOverride(Method m0, Class<?> implementedType)
     {
-        int prefixLen = methodName.startsWith("is") ? 2 : 3;
-        String body = methodName.substring(prefixLen);
-        StringBuilder sb = new StringBuilder(body);
-        sb.setCharAt(0, Character.toLowerCase(body.charAt(0)));
-        return sb.toString();
+        final String name = m0.getName();
+        final Class<?>[] argTypes = m0.getParameterTypes();
+        for (Class<?> curr = implementedType; curr != null && curr != Object.class; curr = curr.getSuperclass()) {
+            try {
+                Method effectiveMethod = curr.getDeclaredMethod(name, argTypes);
+                if (effectiveMethod != null && BeanUtil.isConcrete(effectiveMethod)) {
+                    return true;
+                }
+            } catch (NoSuchMethodException e) { }
+        }
+        return false;
     }
     
-    private static String buildGetterName(String fieldName) {
-        StringBuilder sb = new StringBuilder(fieldName.length());
-        return sb.append("get")
-                .append(Character.toUpperCase(fieldName.charAt(0)))
-                .append(fieldName.substring(1))
-                .toString();
+    protected String getPropertyName(String methodName)
+    {
+        int prefixLen = methodName.startsWith("is") ? 2 : 3;
+        return decap(methodName.substring(prefixLen));
     }
 
-    private static String buildSetterName(String fieldName) {
-        StringBuilder sb = new StringBuilder(fieldName.length());
-        return sb.append("set")
-                .append(Character.toUpperCase(fieldName.charAt(0)))
-                .append(fieldName.substring(1))
-                .toString();
+    protected String buildGetterName(String fieldName) {
+        return cap("get", fieldName);
     }
 
-    private static String getInternalClassName(String className) {
+    protected String buildSetterName(String fieldName) {
+        return cap("set", fieldName);
+    }
+
+    protected String getInternalClassName(String className) {
         return className.replace(".", "/");
     }
 
-    private void addGetter(Method m)
+    protected void addGetter(Method m)
     {
         POJOProperty prop = findProperty(getPropertyName(m.getName()));
         // only set if not yet set; we start with super class:
@@ -189,7 +190,7 @@ public class BeanBuilder
         }
     }
 
-    private void addSetter(Method m)
+    protected void addSetter(Method m)
     {
         POJOProperty prop = findProperty(getPropertyName(m.getName()));
         if (prop.getSetter() == null) {
@@ -197,7 +198,7 @@ public class BeanBuilder
         }
     }
 
-    private POJOProperty findProperty(String propName)
+    protected POJOProperty findProperty(String propName)
     {
         POJOProperty prop = _beanProperties.get(propName);
         if (prop == null) {
@@ -207,7 +208,7 @@ public class BeanBuilder
         return prop;
     }
     
-    private final static boolean returnsBoolean(Method m)
+    protected final static boolean returnsBoolean(Method m)
     {
         Class<?> rt = m.getReturnType();
         return (rt == Boolean.class || rt == Boolean.TYPE);
@@ -219,6 +220,9 @@ public class BeanBuilder
     /**********************************************************
      */
 
+    /**
+     * NOTE: only static because it is needed from TypeDetector
+     */
     protected static void generateDefaultConstructor(ClassWriter cw, String superName)
     {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
@@ -231,7 +235,7 @@ public class BeanBuilder
         mv.visitEnd();
     }
 
-    private static void createField(ClassWriter cw, POJOProperty prop, TypeDescription type)
+    protected void createField(ClassWriter cw, POJOProperty prop, TypeDescription type)
     {
         String sig = type.hasGenerics() ? type.genericSignature() : null;
         String desc = type.erasedSignature();
@@ -239,7 +243,7 @@ public class BeanBuilder
         fv.visitEnd();
     }
 
-    private static void createSetter(ClassWriter cw, String internalClassName,
+    protected void createSetter(ClassWriter cw, String internalClassName,
             POJOProperty prop, TypeDescription propertyType)
     {
         String methodName;
@@ -264,7 +268,7 @@ public class BeanBuilder
         mv.visitEnd();
     }
 
-    private static void createGetter(ClassWriter cw, String internalClassName,
+    protected void createGetter(ClassWriter cw, String internalClassName,
             POJOProperty prop, TypeDescription propertyType)
     {
         String methodName;
@@ -292,7 +296,7 @@ public class BeanBuilder
      * Builder for methods that just throw an exception, basically "unsupported
      * operation" implementation.
      */
-    private static void createUnimplementedMethod(ClassWriter cw, String internalClassName,
+    protected void createUnimplementedMethod(ClassWriter cw, String internalClassName,
             Method method)
     {
         String exceptionName = getInternalClassName(UnsupportedOperationException.class.getName());        
@@ -310,6 +314,34 @@ public class BeanBuilder
         mv.visitEnd();
     }
 
+    /*
+    /**********************************************************
+    /* Internal methods, other
+    /**********************************************************
+     */
+    
+    protected String decap(String name) {
+        char c = name.charAt(0);
+        if (name.length() > 1
+                && Character.isUpperCase(name.charAt(1))
+                && Character.isUpperCase(c)){
+            return name;
+        }
+        char chars[] = name.toCharArray();
+        chars[0] = Character.toLowerCase(c);
+        return new String(chars);
+    }
+
+    protected String cap(String prefix, String name)
+    {
+        final int plen = prefix.length();
+        StringBuilder sb = new StringBuilder(plen + name.length());
+        sb.append(prefix);
+        sb.append(name);
+        sb.setCharAt(plen, Character.toUpperCase(name.charAt(0)));
+        return sb.toString();
+    }
+    
     /*
     /**********************************************************
     /* Helper classes
