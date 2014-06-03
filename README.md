@@ -1,7 +1,7 @@
 Mr Bean is an extension that implements support for "POJO type materialization";
 ability for [databinder](jackson-databind) to construct implementation classes for Java interfaces and abstract classes, as part of deserialization.
 
-Extension plugs in using standard `Module` interface, and requires Jackson 2.0.0 or above.
+Extension plugs in using standard `Module` interface, and requires Jackson 2.0 or above.
 
 ## Status
 
@@ -19,7 +19,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.module</groupId>
   <artifactId>jackson-module-mrbean</artifactId>
-  <version>2.3.2</version>
+  <version>2.4.0</version>
 </dependency>
 ```
 
@@ -79,5 +79,5 @@ One potential area of conflict is that of handling of so-called polymorphic type
 Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used).
 Because of this, Mr Bean will ''not materialize any types annotated with @JsonTypeInfo annotation''.
 
-One remaining potential concern is that of "default typing", in which case Jackson would use polymorphic type handling for wider set of types.
+Another potential concern is that of "default typing", in which case Jackson would use polymorphic type handling for wider set of types.
 Use of Mr Bean is not recommended together with enabling of "default typing", since either mr Bean or default typing is not going to work correctly.
