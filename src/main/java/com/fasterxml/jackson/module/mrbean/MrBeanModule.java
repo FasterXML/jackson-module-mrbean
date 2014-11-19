@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.module.mrbean;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer;
 
-public class MrBeanModule extends SimpleModule
+public class MrBeanModule extends Module
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Configured materializer instance to register with deserializer factory.
      */
@@ -24,14 +22,22 @@ public class MrBeanModule extends SimpleModule
     }
 
     public MrBeanModule(AbstractTypeMaterializer materializer) {
-        super(PackageVersion.VERSION);
         _materializer = materializer;
+    }
+
+    @Override
+    public String getModuleName() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public Version version() {
+        return PackageVersion.VERSION;
     }
     
     @Override
     public void setupModule(SetupContext context)
     {
-        super.setupModule(context);
         // All we really need to for now is to register materializer:
         context.addAbstractTypeResolver(_materializer);
     }
