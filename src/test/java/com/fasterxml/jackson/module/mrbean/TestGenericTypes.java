@@ -33,8 +33,7 @@ public class TestGenericTypes
      */
     public void testSimpleInterface() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MrBeanModule());
+        ObjectMapper mapper = new ObjectMapper().registerModule(new MrBeanModule());
         ListBean bean = mapper.readValue("{\"leaves\":[{\"value\":\"foo\"}] }", ListBean.class);
         assertNotNull(bean);
         List<LeafBean> leaves = bean.getLeaves();

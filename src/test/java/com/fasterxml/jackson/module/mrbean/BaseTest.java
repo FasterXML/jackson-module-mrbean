@@ -6,12 +6,23 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 //import static org.junit.Assert.*;
 
 public abstract class BaseTest
     extends TestCase
 {
+    /*
+    /**********************************************************
+    /* Mapper construction
+    /**********************************************************
+     */
+
+    protected ObjectMapper newMrBeanMapper() {
+        return new ObjectMapper().registerModule(new MrBeanModule());
+    }
+
     /*
     /**********************************************************
     /* Parser/generator construction
