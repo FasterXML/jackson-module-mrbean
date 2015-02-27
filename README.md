@@ -5,6 +5,8 @@ Extension plugs in using standard `Module` interface, and requires Jackson 2.0 o
 
 ## Status
 
+[![Build Status](https://travis-ci.org/FasterXML/jackson-module-bean.svg)](https://travis-ci.org/FasterXML/jackson-module-mrbean)
+
 Module is fully usable, and considered stable having been added to Jackson in version [1.6](http://wiki.fasterxml.com/JacksonRelease16).
 
 Project was carved out as a stand-alone project with Jackson 2.0; previously it was included in set of core jars built along with databinding functionality, but has always been a separate artifact from databinding functionality.
