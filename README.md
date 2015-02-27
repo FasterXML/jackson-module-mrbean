@@ -5,7 +5,7 @@ Extension plugs in using standard `Module` interface, and requires Jackson 2.0 o
 
 ## Status
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-module-bean.svg)](https://travis-ci.org/FasterXML/jackson-module-mrbean)
+[![Build Status](https://travis-ci.org/FasterXML/jackson-module-mrbean.svg)](https://travis-ci.org/FasterXML/jackson-module-mrbean)
 
 Module is fully usable, and considered stable having been added to Jackson in version [1.6](http://wiki.fasterxml.com/JacksonRelease16).
 
