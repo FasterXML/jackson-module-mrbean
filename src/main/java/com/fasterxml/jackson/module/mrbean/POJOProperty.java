@@ -29,8 +29,11 @@ public class POJOProperty
     {
         _name = name;
         _context = ctxt;
+        /* 06-Mar-2015, tatu: We used to use '_' prefix, but that leads to issues
+         *   like [#20]; as well as prevents expected use without explicit setter.
+         */
         // Let's just prefix field name with single underscore for fun...
-        _fieldName = "_"+name;
+        _fieldName = name;
     }
 
     public String getName() { return _name; }

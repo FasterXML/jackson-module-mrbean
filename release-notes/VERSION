@@ -4,6 +4,11 @@ Project: jackson-module-mrbean
 = Releases
 ------------------------------------------------------------------------
 
+2.5.2 (not yet released)
+
+#20: Serialized beans have extra parameters in JSON
+ (reported by Craig B)
+
 2.5.1 (06-Feb-2015)
 2.5.0 (01-Jan-2015)
 

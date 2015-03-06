@@ -240,7 +240,10 @@ public class BeanBuilder
     {
         String sig = type.hasGenerics() ? type.genericSignature() : null;
         String desc = type.erasedSignature();
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC, prop.getFieldName(), desc, sig, null);
+        /* 15-Mar-2015, tatu: Should not be created public as that can cause problems
+         *   like [mrbean#20]
+         */
+        FieldVisitor fv = cw.visitField(ACC_PROTECTED, prop.getFieldName(), desc, sig, null);
         fv.visitEnd();
     }
 
