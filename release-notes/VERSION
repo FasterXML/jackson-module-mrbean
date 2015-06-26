@@ -6,6 +6,8 @@ Project: jackson-module-mrbean
 
 2.6.0 (not yet released)
 
+#21: Change default package used for materialized classes to reflect Jackson 2.x
+
 2.5.3 (24-Apr-2015)
 2.5.2 (29-Mar-2015)
 
