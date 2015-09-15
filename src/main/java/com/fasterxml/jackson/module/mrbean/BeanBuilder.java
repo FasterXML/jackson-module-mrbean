@@ -8,6 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -59,9 +60,13 @@ public class BeanBuilder
         for (Class<?> impl : implTypes) {
             // and then find all getters, setters, and other non-concrete methods therein:
             for (Method m : impl.getDeclaredMethods()) {
+                // 15-Sep-2015, tatu: As per [module-mrbean#25], make sure to ignore static
+                //    methods.
+                if (Modifier.isStatic(m.getModifiers())) {
+                    continue;
+                }
                 String methodName = m.getName();
                 int argCount = m.getParameterTypes().length;
-    
                 if (argCount == 0) { // getter?
                     if (methodName.startsWith("get") || methodName.startsWith("is") && returnsBoolean(m)) {
                         addGetter(m);
