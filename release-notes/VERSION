@@ -4,6 +4,10 @@ Project: jackson-module-mrbean
 = Releases
 ------------------------------------------------------------------------
 
+2.5.5 (not yet released)
+
+#25: Should ignore `static` methods (setter/getter)
+
 2.5.4 (09-Jun-2015)
 2.5.3 (24-Apr-2015)
 2.5.2 (29-Mar-2015)
@@ -16,6 +20,8 @@ Project: jackson-module-mrbean
 
 No changes since 2.4.0
 
+2.4.6 (23-Apr-2015)
+2.4.5 (13-Jan-2015)
 2.4.4 (24-Nov-2014)
 2.4.3 (04-Oct-2014)
 2.4.2
