@@ -31,8 +31,7 @@ public class TestAbstractClasses
 
     public void testSimpleInteface() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MrBeanModule());
+        ObjectMapper mapper = newMrBeanMapper();
         Bean bean = mapper.readValue("{ \"x\" : \"abc\", \"y\" : 13 }", Bean.class);
         assertNotNull(bean);
         assertEquals("abc", bean.getX());
