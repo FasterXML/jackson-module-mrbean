@@ -4,11 +4,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-parent</artifactId>
-    <version>2.6.1</version>
+    <version>2.7.0-rc1</version>
   </parent>
   <groupId>com.fasterxml.jackson.module</groupId>
   <artifactId>jackson-module-mrbean</artifactId>
-  <version>2.6.4-SNAPSHOT</version>
+  <version>2.7.0-rc1-SNAPSHOT</version>
   <name>Jackson-module-mr.Bean</name>
   <packaging>bundle</packaging>
   <description>Functionality for implementing interfaces and abstract types
@@ -26,10 +26,11 @@ dynamically ("bean materialization"), integrated with Jackson (although usable e
   </scm>
 
   <properties>
-    <version.jackson.core>2.6.3</version.jackson.core>
+    <version.jackson.core>2.7.0-rc1</version.jackson.core>
    <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/module/mrbean</packageVersion.dir>
     <packageVersion.package>${project.groupId}.mrbean</packageVersion.package>
+    <!-- not 100% sure this is needed, but due to shading better safe than sorry -->
     <osgi.export>
 ${project.groupId}.mrbean
     </osgi.export>
