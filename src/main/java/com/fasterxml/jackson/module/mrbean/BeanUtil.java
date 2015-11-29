@@ -3,8 +3,9 @@ package com.fasterxml.jackson.module.mrbean;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.JavaType;
 
 public class BeanUtil
 {
@@ -26,32 +27,34 @@ public class BeanUtil
      * @param endBefore Super-type to NOT include in results, if any; when
      *    encountered, will be ignored (and no super types are checked).
      */
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore)
+    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore)
     {
-        return findSuperTypes(cls, endBefore, new ArrayList<Class<?>>());
+        return findSuperTypes(type, endBefore, new ArrayList<JavaType>());
     }
 
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result)
+    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore, List<JavaType> result)
     {
-        _addSuperTypes(cls, endBefore, result, false);
+        _addSuperTypes(type, endBefore, result, false);
         return result;
     }
     
-    private static void _addSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself)
+    private static void _addSuperTypes(JavaType type, Class<?> endBefore,
+            List<JavaType> result, boolean addClassItself)
     {
-        if (cls == endBefore || cls == null || cls == Object.class) {
+        if ((type == null) || type.isJavaLangObject() || type.hasRawClass(endBefore)) {
             return;
         }
         if (addClassItself) {
-            if (result.contains(cls)) { // already added, no need to check supers
+            // 28-Nov-2015, tatu: Should we check for differently parameterized generic types?
+            //   For now, assume it's not a significant problem
+            if (result.contains(type)) { // already added, no need to check supers
                 return;
             }
-            result.add(cls);
+            result.add(type);
         }
-        for (Class<?> intCls : cls.getInterfaces()) {
+        for (JavaType intCls : type.getInterfaces()) {
             _addSuperTypes(intCls, endBefore, result, true);
         }
-        _addSuperTypes(cls.getSuperclass(), endBefore, result, true);
+        _addSuperTypes(type.getSuperClass(), endBefore, result, true);
     }
-
 }

@@ -6,6 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import org.objectweb.asm.ClassWriter;
@@ -29,14 +32,22 @@ public class BeanBuilder
     /**
      * Abstract class or interface that the bean is created to extend or implement.
      */
-    protected final Class<?> _implementedType;
+    protected final JavaType _type;
+
+    protected final AnnotatedClass _typeDefinition;
 
     protected final TypeFactory _typeFactory;
-    
-    public BeanBuilder(Class<?> implType, TypeFactory tf)
+
+    public BeanBuilder(JavaType type, AnnotatedClass ac, TypeFactory tf)
     {
-        _implementedType = implType;
+        _type = type;
+        _typeDefinition = ac;
         _typeFactory = tf;
+    }
+
+    public static BeanBuilder construct(MapperConfig<?> config, JavaType type, AnnotatedClass ac)
+    {
+        return new BeanBuilder(type, ac, config.getTypeFactory());
     }
 
     /*
@@ -53,15 +64,17 @@ public class BeanBuilder
      */
     public BeanBuilder implement(boolean failOnUnrecognized)
     {
-        ArrayList<Class<?>> implTypes = new ArrayList<Class<?>>();
+        ArrayList<JavaType> implTypes = new ArrayList<JavaType>();
         // First: find all supertypes:
-        implTypes.add(_implementedType);
-        BeanUtil.findSuperTypes(_implementedType, Object.class, implTypes);
-        final boolean hasConcrete = !_implementedType.isInterface();
+        implTypes.add(_type);
+        BeanUtil.findSuperTypes(_type, Object.class, implTypes);
+        final boolean hasConcrete = !_type.isInterface();
         
-        for (Class<?> impl : implTypes) {
+        for (JavaType impl : implTypes) {
+            TypeResolutionContext ctxt = buildTypeContext(impl);
+
             // and then find all getters, setters, and other non-concrete methods therein:
-            for (Method m : impl.getDeclaredMethods()) {
+            for (Method m : impl.getRawClass().getDeclaredMethods()) {
                 // 15-Sep-2015, tatu: As per [module-mrbean#25], make sure to ignore static
                 //    methods.
                 if (Modifier.isStatic(m.getModifiers())) {
@@ -71,19 +84,19 @@ public class BeanBuilder
                 int argCount = m.getParameterTypes().length;
                 if (argCount == 0) { // getter?
                     if (methodName.startsWith("get") || methodName.startsWith("is") && returnsBoolean(m)) {
-                        addGetter(m);
+                        addGetter(ctxt, m);
                         continue;
                     }
                 } else if (argCount == 1 && methodName.startsWith("set")) {
-                    addSetter(m);
+                    addSetter(ctxt, m);
                     continue;
                 }
                 // Otherwise, if concrete, or already handled, skip:
                 if (BeanUtil.isConcrete(m) || _unsupportedMethods.containsKey(methodName)) {
                     continue;
                 }
-                // [Issue#11]: try to support overloaded methods
-                if (hasConcrete && hasConcreteOverride(m, _implementedType)) {
+                // [module-mrbean#11]: try to support overloaded methods
+                if (hasConcrete && hasConcreteOverride(m, _type)) {
                     continue;
                 }
                 if (failOnUnrecognized) {
@@ -108,12 +121,12 @@ public class BeanBuilder
     {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         String internalClass = getInternalClassName(className);
-        String implName = getInternalClassName(_implementedType.getName());
+        String implName = getInternalClassName(_type.getRawClass().getName());
         
         // muchos important: level at least 1.5 to get generics!!!
         // Also: abstract class vs interface...
         String superName;
-        if (_implementedType.isInterface()) {
+        if (_type.isInterface()) {
             superName = "java/lang/Object";
             cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, internalClass, null,
                     superName, new String[] { implName });
@@ -126,7 +139,7 @@ public class BeanBuilder
         BeanBuilder.generateDefaultConstructor(cw, superName);
         for (POJOProperty prop : _beanProperties.values()) {
             // First: determine type to use; preferably setter (usually more explicit); otherwise getter
-            TypeDescription type = prop.selectType(_typeFactory);
+            TypeDescription type = prop.selectType();
             createField(cw, prop, type);
             // since some getters and/or setters may be implemented, check:
             if (!prop.hasConcreteGetter()) {
@@ -155,13 +168,16 @@ public class BeanBuilder
      * 
      * @since 2.4
      */
-    protected boolean hasConcreteOverride(Method m0, Class<?> implementedType)
+    protected boolean hasConcreteOverride(Method m0, JavaType implementedType)
     {
         final String name = m0.getName();
         final Class<?>[] argTypes = m0.getParameterTypes();
-        for (Class<?> curr = implementedType; curr != null && curr != Object.class; curr = curr.getSuperclass()) {
+        for (JavaType curr = implementedType; (curr != null) && !curr.isJavaLangObject();
+                curr = curr.getSuperClass()) {
+            // 29-Nov-2015, tatu: Avoiding exceptions would be good, so would linear scan
+            //    be better here?
             try {
-                Method effectiveMethod = curr.getDeclaredMethod(name, argTypes);
+                Method effectiveMethod = curr.getRawClass().getDeclaredMethod(name, argTypes);
                 if (effectiveMethod != null && BeanUtil.isConcrete(effectiveMethod)) {
                     return true;
                 }
@@ -188,28 +204,28 @@ public class BeanBuilder
         return className.replace(".", "/");
     }
 
-    protected void addGetter(Method m)
+    protected void addGetter(TypeResolutionContext ctxt, Method m)
     {
-        POJOProperty prop = findProperty(getPropertyName(m.getName()));
+        POJOProperty prop = findProperty(ctxt, getPropertyName(m.getName()));
         // only set if not yet set; we start with super class:
         if (prop.getGetter() == null) {
             prop.setGetter(m);        
         }
     }
 
-    protected void addSetter(Method m)
+    protected void addSetter(TypeResolutionContext ctxt, Method m)
     {
-        POJOProperty prop = findProperty(getPropertyName(m.getName()));
+        POJOProperty prop = findProperty(ctxt, getPropertyName(m.getName()));
         if (prop.getSetter() == null) {
             prop.setSetter(m);
         }
     }
 
-    protected POJOProperty findProperty(String propName)
+    protected POJOProperty findProperty(TypeResolutionContext ctxt, String propName)
     {
         POJOProperty prop = _beanProperties.get(propName);
         if (prop == null) {
-            prop = new POJOProperty(propName, _implementedType);
+            prop = new POJOProperty(ctxt, propName);
             _beanProperties.put(propName, prop);
         }
         return prop;
@@ -351,7 +367,13 @@ public class BeanBuilder
         sb.setCharAt(plen, Character.toUpperCase(name.charAt(0)));
         return sb.toString();
     }
-    
+
+    protected TypeResolutionContext buildTypeContext(JavaType ctxtType)
+    {
+        return new TypeResolutionContext.Basic(_typeFactory,
+                ctxtType.getBindings());
+    }
+
     /*
     /**********************************************************
     /* Helper classes

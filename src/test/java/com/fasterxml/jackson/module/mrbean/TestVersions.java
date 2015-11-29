@@ -23,7 +23,7 @@ public class TestVersions extends BaseTest
     private void assertVersion(Versioned vers)
     {
         final Version v = vers.version();
-        assertFalse("Should find version information (got "+v+")", v.isUknownVersion());
+        assertFalse("Should find version information (got "+v+")", v.isUnknownVersion());
         assertEquals(PackageVersion.VERSION, v);
     }
 }

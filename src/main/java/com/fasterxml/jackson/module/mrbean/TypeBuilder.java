@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.module.mrbean;
 
 import com.fasterxml.jackson.databind.JavaType;
+
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.signature.SignatureWriter;
@@ -16,8 +17,8 @@ public class TypeBuilder {
 
     protected final JavaType _implementedType;
 
-    public TypeBuilder(JavaType _implementedType) {
-        this._implementedType = _implementedType;
+    public TypeBuilder(JavaType type) {
+        _implementedType = type;
     }
 
     /**
@@ -32,7 +33,6 @@ public class TypeBuilder {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         String internalClass = getInternalClassName(className);
         String implName = getInternalClassName(_implementedType.getRawClass().getName());
-
 
         // muchos important: level at least 1.5 to get generics!!!
         // Also: abstract class vs interface...
@@ -67,7 +67,6 @@ public class TypeBuilder {
         return cw.toByteArray();
     }
 
-
     private static String getInternalClassName(String className) {
         return className.replace(".", "/");
     }
@@ -86,5 +85,4 @@ public class TypeBuilder {
         }
         sw.visitEnd();
     }
-
 }

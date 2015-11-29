@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 
 import java.lang.reflect.Modifier;
 
@@ -189,8 +190,9 @@ public class AbstractTypeMaterializer
         /* We won't be handling any container types (Collections, Maps and arrays),
          * Throwables or enums.
          */
-        if (type.isContainerType() || type.isPrimitive() || type.isEnumType() || type.isThrowable() ||
-                type.getRawClass() == Number.class)
+        if (type.isContainerType() || type.isPrimitive()
+                || type.isEnumType() || type.isReferenceType()
+                || type.isThrowable() || type.hasRawClass(Number.class))
         {
             return null;
         }
@@ -208,25 +210,11 @@ public class AbstractTypeMaterializer
         
         // might want to skip proxies, local types too... but let them be for now:
         //if (intr.findTypeResolver(beanDesc.getClassInfo(), type) == null) {
-        return config.constructType(materializeType(config, type));
-    }
-
-    /**
-     * Method that will find implementation for given abstract class; if called
-     * multiple times on same materializer, will return same Class.
-     * 
-     * @param config Configuration settings to use; mostly needed to be able to
-     *     access {@link com.fasterxml.jackson.databind.type.TypeFactory}
-     *     
-     * @since 2.4
-     */
-    public Class<?> materializeType(MapperConfig<?> config, JavaType type)
-    {
-        //this is an open generic type
-        if (type.containedTypeCount() > 0) {
-            return materializeGenericType(config, type);
-        }
-        return materializeRawType(config, type.getRawClass());
+        Class<?> materializedType = type.hasGenericTypes()
+                ? materializeGenericType(config, type)
+                : materializeRawType(config, type);
+        
+        return config.constructType(materializedType);
     }
 
     /**
@@ -236,10 +224,13 @@ public class AbstractTypeMaterializer
     {
         Class<?> cls = type.getRawClass();
         String abstractName = _defaultPackage+"abstract." +cls.getName()+"_TYPE_RESOLVE";
+
+        // Two-phase processing here; first construct concrete intermediate type:
         TypeBuilder tb = new TypeBuilder(type);
         byte[] code = tb.buildAbstractBase(abstractName);
         Class<?> raw = _classLoader.loadAndResolve(abstractName, code, cls);
-        return materializeRawType(config, raw);
+        // and only with that intermediate non-generic type, do actual materialization
+        return materializeRawType(config, config.getTypeFactory().constructType(raw));
     }
 
     /**
@@ -247,23 +238,19 @@ public class AbstractTypeMaterializer
      * 
      * @since 2.4
      */
-    public Class<?> materializeRawType(MapperConfig<?> config, Class<?> rawType)
+    public Class<?> materializeRawType(MapperConfig<?> config, JavaType type)
     {
+        Class<?> rawType = type.getRawClass();
         String newName = _defaultPackage+rawType.getName();
-        BeanBuilder builder = new BeanBuilder(rawType, config.getTypeFactory());
+        // 28-Nov-2015, tatu: Databind needs to pass AnnotatedClass (or something to
+        //    access it), but for now it's not available so...
+        AnnotatedClass ac = AnnotatedClass.construct(type, config);
+
+        BeanBuilder builder = BeanBuilder.construct(config, type, ac);
         byte[] bytecode = builder.implement(isEnabled(Feature.FAIL_ON_UNMATERIALIZED_METHOD)).build(newName);
         return _classLoader.loadAndResolve(newName, bytecode, rawType);
     }
-    
-    /**
-     * @deprecated Since 2.4 use {@link #materializeType(MapperConfig, JavaType)} instead
-     */
-    @Deprecated
-    public Class<?> materializeClass(DeserializationConfig config, JavaType type)
-    {
-        return materializeType(config, type);
-    }
-    
+
     /*
     /**********************************************************
     /* Helper classes
