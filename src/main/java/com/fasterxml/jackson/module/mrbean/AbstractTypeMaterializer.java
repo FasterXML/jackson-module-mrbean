@@ -3,6 +3,7 @@ package com.fasterxml.jackson.module.mrbean;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -180,40 +181,44 @@ public class AbstractTypeMaterializer
      * Entry-point for {@link AbstractTypeResolver} that Jackson calls to materialize
      * an abstract type.
      */
+    @Override // since 2.7
+    public JavaType resolveAbstractType(DeserializationConfig config, BeanDescription beanDesc)
+    {
+        final JavaType type = beanDesc.getType();
+        if (!_suitableType(type)) {
+            return null;
+        }
+
+        // might want to skip proxies, local types too... but let them be for now:
+        //if (intr.findTypeResolver(beanDesc.getClassInfo(), type) == null) {
+        Class<?> materializedType;
+        
+        if (type.hasGenericTypes()) {
+            materializedType = materializeGenericType(config, type);
+        } else {
+            materializedType = materializeRawType(config, beanDesc.getClassInfo());
+        }
+        return config.constructType(materializedType);
+    }
+    
+    /**
+     * Older variant of {@link #resolveAbstractType(DeserializationConfig, BeanDescription)},
+     * obsoleted in 2.7. Kept around in 2.7 for backwards compatibility.
+     *<p>
+     * TODO: remove from 2.8.
+     */
     @Override
     public JavaType resolveAbstractType(DeserializationConfig config, JavaType type)
     {
-        /* 19-Feb-2011, tatu: Future plans may include calling of this method for all kinds
-         *    of abstract types. So as simple precaution, let's limit kinds of types we
-         *    will try materializa implementations for.
-         */
-        /* We won't be handling any container types (Collections, Maps and arrays),
-         * Throwables or enums.
-         */
-        if (type.isContainerType() || type.isPrimitive()
-                || type.isEnumType() || type.isReferenceType()
-                || type.isThrowable() || type.hasRawClass(Number.class))
-        {
+        if (!_suitableType(type)) {
             return null;
         }
-        Class<?> cls = type.getRawClass();
-        /* [JACKSON-683] Fail on non-public classes, since we can't easily force
-         *   access to such classes (unless we tried to generate impl classes in that
-         *   package)
-         */
-        if (!Modifier.isPublic(cls.getModifiers())) {
-            if (isEnabled(Feature.FAIL_ON_NON_PUBLIC_TYPES)) {
-                throw new IllegalArgumentException("Can not materialize implementation of "+cls+" since it is not public ");
-            }
-            return null;
+        Class<?> materializedType;
+        if (type.hasGenericTypes()) {
+            materializedType = materializeGenericType(config, type);
+        } else {
+            materializedType = materializeRawType(config, AnnotatedClass.construct(type, config));
         }
-        
-        // might want to skip proxies, local types too... but let them be for now:
-        //if (intr.findTypeResolver(beanDesc.getClassInfo(), type) == null) {
-        Class<?> materializedType = type.hasGenericTypes()
-                ? materializeGenericType(config, type)
-                : materializeRawType(config, type);
-        
         return config.constructType(materializedType);
     }
 
@@ -223,14 +228,15 @@ public class AbstractTypeMaterializer
     public Class<?> materializeGenericType(MapperConfig<?> config, JavaType type)
     {
         Class<?> cls = type.getRawClass();
-        String abstractName = _defaultPackage+"abstract." +cls.getName()+"_TYPE_RESOLVE";
-
         // Two-phase processing here; first construct concrete intermediate type:
+        String abstractName = _defaultPackage+"abstract." +cls.getName()+"_TYPE_RESOLVE";
         TypeBuilder tb = new TypeBuilder(type);
         byte[] code = tb.buildAbstractBase(abstractName);
         Class<?> raw = _classLoader.loadAndResolve(abstractName, code, cls);
         // and only with that intermediate non-generic type, do actual materialization
-        return materializeRawType(config, config.getTypeFactory().constructType(raw));
+        AnnotatedClass ac = AnnotatedClass.construct(config.getTypeFactory().constructType(raw),
+                config);
+        return materializeRawType(config, ac);
     }
 
     /**
@@ -238,17 +244,38 @@ public class AbstractTypeMaterializer
      * 
      * @since 2.4
      */
-    public Class<?> materializeRawType(MapperConfig<?> config, JavaType type)
+    public Class<?> materializeRawType(MapperConfig<?> config, AnnotatedClass typeDef)
     {
+        final JavaType type = typeDef.getType();
+
         Class<?> rawType = type.getRawClass();
         String newName = _defaultPackage+rawType.getName();
-        // 28-Nov-2015, tatu: Databind needs to pass AnnotatedClass (or something to
-        //    access it), but for now it's not available so...
-        AnnotatedClass ac = AnnotatedClass.construct(type, config);
-
-        BeanBuilder builder = BeanBuilder.construct(config, type, ac);
+        BeanBuilder builder = BeanBuilder.construct(config, type, typeDef);
         byte[] bytecode = builder.implement(isEnabled(Feature.FAIL_ON_UNMATERIALIZED_METHOD)).build(newName);
         return _classLoader.loadAndResolve(newName, bytecode, rawType);
+    }
+
+    private boolean _suitableType(JavaType type)
+    {
+        // Future plans may include calling of this method for all kinds of abstract types.
+        // So as simple precaution, let's limit kinds of types we will try materialize
+        // implementations for.
+        if (type.isContainerType() || type.isReferenceType()
+                || type.isEnumType() || type.isPrimitive()
+                || type.hasRawClass(Number.class))
+        {
+            return false;
+        }
+        Class<?> cls = type.getRawClass();
+        // Fail on non-public classes, since we can't easily force  access to such
+        // classes (unless we tried to generate impl classes in same package)
+        if (!Modifier.isPublic(cls.getModifiers())) {
+            if (isEnabled(Feature.FAIL_ON_NON_PUBLIC_TYPES)) {
+                throw new IllegalArgumentException("Can not materialize implementation of "+cls+" since it is not public ");
+            }
+            return false;
+        }
+        return true;
     }
 
     /*
