@@ -6,6 +6,8 @@ Extension plugs in using standard `Module` interface, and requires Jackson 2.0 o
 ## Status
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-module-mrbean.svg)](https://travis-ci.org/FasterXML/jackson-module-mrbean)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.module/jackson-module-mrbean/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.module/jackson-module-mrbean/)
+[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.module/jackson-module-mrbean/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.module/jackson-module-mrbean)
 
 Module is fully usable, and considered stable having been added to Jackson in version [1.6](http://wiki.fasterxml.com/JacksonRelease16).
 
