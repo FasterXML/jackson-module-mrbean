@@ -26,7 +26,7 @@ dynamically ("bean materialization"), integrated with Jackson (although usable e
   </scm>
 
   <properties>
-    <version.jackson.core>2.6.4</version.jackson.core>
+    <version.jackson.core>2.6.5</version.jackson.core>
    <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/module/mrbean</packageVersion.dir>
     <packageVersion.package>${project.groupId}.mrbean</packageVersion.package>
