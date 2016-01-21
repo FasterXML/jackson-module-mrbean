@@ -1,3 +1,7 @@
+**NOTE**: This module is being moved under [../../../jackson-base-modules] during Jackson 2.7 version.
+
+-----
+
 Mr Bean is an extension that implements support for "POJO type materialization";
 ability for [databinder](jackson-databind) to construct implementation classes for Java interfaces and abstract classes, as part of deserialization.
 
